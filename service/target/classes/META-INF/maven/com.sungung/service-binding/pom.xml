@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+		<groupId>com.sungung</groupId>
+		<artifactId>edi-binding</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>service-binding</artifactId>
+
+    <properties>
+        <schema.pack.classifier>service-edifact</schema.pack.classifier>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>EDIFACT-Common</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <configuration>
+                	<!-- service module has own cxf-xjc-plugin configuration, so it need to override parent configuration -->
+                    <xsdOptions combine.self="override">
+                        <xsdOption>
+                            <catalog>${project.parent.basedir}/src/main/resources/catalog.xml</catalog>
+                            <packagename>com.sungung.edi.binding.service</packagename>
+                            <xsd>${project.build.outputDirectory}/EDIFACT-Common/EDIFACT-Service-Segments-4.1.dfdl.xsd</xsd>
+                            <extensionArgs>
+                                <extensionArg>-Xfluent-api</extensionArg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

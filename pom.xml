@@ -1,0 +1,101 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sungung</groupId>
+	<artifactId>edi-binding</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>UNEDIFACTBinding</name>
+	<description>Customised JAXB objects for EDIFACT serialising</description>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>service</module>
+		<module>d95b</module>
+	</modules>
+	
+	<properties>
+		<!-- Keep Jave vesion, smooks won't work with the other version -->
+		<java.version>1.8</java.version>
+		<smooks.version>2.0.0-M3</smooks.version>
+		<smooks.edifact.cartridge.version>2.0.0-M3</smooks.edifact.cartridge.version>
+	</properties>
+	
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.smooks</groupId>
+                <artifactId>smooks-bom</artifactId>
+                <version>${smooks.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.smooks.cartridges.edi</groupId>
+            <artifactId>smooks-edifact-cartridge</artifactId>
+        </dependency>
+    </dependencies>	  
+	
+	<build>
+		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.xsd</exclude>
+                        <exclude>**/*.xjb</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>			
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!-- All sub modules of EDIFACT version will inherit cxf-xjc-plugin configuration -->
+                <plugin>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-xjc-plugin</artifactId>
+                    <version>3.3.1</version>
+                    <configuration>
+                        <sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
+                        <extensions>
+                            <extension>net.java.dev.jaxb2-commons:jaxb-fluent-api:2.1.8</extension>
+                        </extensions>
+                        <xsdOptions>
+                            <xsdOption>
+                                <xsd>${project.build.outputDirectory}/EDIFACT-Interchange.dfdl.xsd</xsd>
+                                <bindingFile>${project.build.outputDirectory}/binding.xjb</bindingFile>
+                                <catalog>${project.parent.basedir}/src/main/resources/catalog.xml</catalog>
+                                <extensionArgs>
+                                    <extensionArg>-Xfluent-api</extensionArg>
+                                </extensionArgs>
+                                <!-- Service artifact will be taken from service module, so we do not need to include in here -->
+                                <deleteDirs>${project.build.directory}/generated-sources/com/turbina/edi/binding/service</deleteDirs>
+                            </xsdOption>
+                        </xsdOptions>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>xsdtojava</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>				
+			</plugins>
+		</pluginManagement>
+	</build>    
+</project>
